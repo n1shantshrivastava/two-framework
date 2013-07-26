@@ -17,13 +17,15 @@ class LibController{
         $this->makeView()->render($full_path);
     }
 
-     /*
-      * redirects  to the specified path
-      * it will discard the current view of your browser and routes to the action for given path
-      */
+    /*
+     * redirects  to the specified path
+     * it will discard the current view of your browser and routes to the action for given path
+     */
     public function redirect($path){
         $path=$this->generateUrl($path);
-        echo '<META HTTP-EQUIV="Refresh" Content="0; URL='.$path.'">';
+        ob_start();
+        header('Location: '.$path);
+        ob_end_flush();
     }
 
     /*
@@ -34,7 +36,7 @@ class LibController{
     private function generateUrl($path){
         $app_path=Application::conf()->APP_URL;
         $sub_folder=str_replace($_SERVER['DOCUMENT_ROOT'],'',Application::conf()->APP_PATH);
-        $sub_folder=substr($sub_folder,0,strlen($sub_folder)-1);
+        $sub_folder=substr($sub_folder,1,strlen($sub_folder)-2);
         if($sub_folder===''){
             $app_path=substr($app_path,0,strlen($app_path)-1);
         }

@@ -9,9 +9,13 @@ class LibView{
      * the view will be included  so that it will be available to send to browser
      */
     public function render($view){
-        $fileName=Application::conf()->APP_PATH.'/protected/view/'.$view.'.php';
+        $fileName=Application::conf()->APP_PATH.'protected/view/'.$view.'.php';
         if(file_exists($fileName)){
-            include $fileName;
+            require_once $fileName;
+        }
+        else
+        {
+            throw new ApplicationException("View not found",__FILE__,__LINE__);
         }
     }
 }

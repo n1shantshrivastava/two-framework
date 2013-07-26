@@ -17,5 +17,5 @@
  */
 
 $route[]=array('method'=>'get','path'=>'/','action'=>'MainController~index');
-$route[]=array('method'=>'get','path'=>'/error','action'=>'ErrorController~index');
+$route[]=array('method'=>'get','path'=>'/error','action'=>'ErrorController~error');
 $route[]=array('method'=>'get','path'=>'/goto','action'=>'MainController~gotoOther');

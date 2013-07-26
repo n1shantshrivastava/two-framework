@@ -55,4 +55,4 @@ $config['APP_MODE'] = 'dev';
  * It you want to enable just write 'on'
  */
 
-$config['MULTI_MODE'] = 'off';
+$config['MULTI_MODE'] = 'on';
