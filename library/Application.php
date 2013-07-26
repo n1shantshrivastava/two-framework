@@ -40,6 +40,8 @@ class Application{
             $sub_folder=str_replace($_SERVER['DOCUMENT_ROOT'],'',self::conf()->APP_PATH);
             $sub_folder=substr($sub_folder,0,strlen($sub_folder)-1);
             $request_url=str_replace($sub_folder,'',$_SERVER['REQUEST_URI']);
+            $url_parts=explode('?',$request_url);
+            $request_url=$url_parts[0];
 
             for($cnt=0;$cnt<count(self::$route);$cnt++){
                 if(strcasecmp(self::$route[$cnt]['method'],$_SERVER['REQUEST_METHOD'])==0 && strcasecmp(self::$route[$cnt]['path'],$request_url)==0){
