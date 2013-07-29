@@ -13,10 +13,17 @@ class LibSession{
     public $session_id;
 
     public function __construct(){
-        $this->is_enable=false;
-        $this->session_id=null;
-        if(!isset($_SESSION))
-        $this->start();
+        session_start();
+        if(isset($_SESSION)){
+            if(empty($_SESSION))
+            {
+                $this->is_enable=false;
+                $this->session_id=null;
+            }
+            else{
+                $this->start();
+            }
+        }
     }
 
     public function start(){
@@ -60,10 +67,16 @@ class LibSession{
     public function add($variable_name,$value){
         try{
             if($this->is_enable){
-                $_SESSION[$variable_name]=$value;
+                if($variable_name!=='')
+                    $_SESSION[$variable_name]=$value;
+                else{
+                    $parent=debug_backtrace();
+                    throw new ApplicationException('Session variable should not be empty',$parent[0]['file'],$parent[0]['line']);
+                }
             }
             else{
-                throw new ApplicationException('Session variable not added',__FILE__,__LINE__);
+                $parent=debug_backtrace();
+                throw new ApplicationException('Session is not started',$parent[0]['file'],$parent[0]['line']);
             }
         }
         catch(Exception $e){
@@ -73,20 +86,32 @@ class LibSession{
 
     public function delete($variable_name){
         if($this->is_enable){
-            unset($_SESSION[$variable_name]);
+            if($variable_name!=='')
+                unset($_SESSION[$variable_name]);
+            else{
+                $parent=debug_backtrace();
+                throw new ApplicationException('Session variable should not be empty',$parent[0]['file'],$parent[0]['line']);
+            }
         }
         else{
-            throw new ApplicationException('Session variable not deleted',__FILE__,__LINE__);
+            $parent=debug_backtrace();
+            throw new ApplicationException('Session is not started',$parent[0]['file'],$parent[0]['line']);
         }
     }
 
     public function update($variable_name,$value){
         try{
             if($this->is_enable){
-                $_SESSION[$variable_name]=$value;
+                if($variable_name!=='')
+                    $_SESSION[$variable_name]=$value;
+                else{
+                    $parent=debug_backtrace();
+                    throw new ApplicationException('Session variable should not be empty',$parent[0]['file'],$parent[0]['line']);
+                }
             }
             else{
-                throw new ApplicationException('Session variable not updated',__FILE__,__LINE__);
+                $parent=debug_backtrace();
+                throw new ApplicationException('Session is not started',$parent[0]['file'],$parent[0]['line']);
             }
         }
         catch(Exception $e){
@@ -96,11 +121,24 @@ class LibSession{
 
     public function get($variable_name){
         try{
-            if(isset($_SESSION[$variable_name])){
-                return $_SESSION[$variable_name];
+            if($this->is_enable){
+                if($variable_name!==''){
+                    if(isset($_SESSION[$variable_name])){
+                        return $_SESSION[$variable_name];
+                    }
+                    else{
+                        $parent=debug_backtrace();
+                        throw new ApplicationException('Session variable not set',$parent[0]['file'],$parent[0]['line']);
+                    }
+                }
+                else{
+                    $parent=debug_backtrace();
+                    throw new ApplicationException('Session variable should not be empty',$parent[0]['file'],$parent[0]['line']);
+                }
             }
             else{
-                throw new ApplicationException('Session variable not set',__FILE__,__LINE__);
+                $parent=debug_backtrace();
+                throw new ApplicationException('Session is not started',$parent[0]['file'],$parent[0]['line']);
             }
         }
         catch(Exception $e){
