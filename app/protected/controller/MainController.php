@@ -8,9 +8,9 @@
  */
 class MainController extends LibController{
     public function index(){
-        //  echo 'hello';
-        $data=array('name'=>'AAAA1234','email'=>'abc@pqr.com');
-        $valid=new LibValidation($data,array('name'=>array('require','numeric','special:#'),'email'=>array('email','require')));
+        $data=array('name'=>'asdfa','email'=>'abc@pqr.com');
+
+        $valid=new LibValidation($data,array('name'=>array('require','special:@','min:5'),'email'=>array('email','require')));
         if(!$valid->validate()){
             $data_to_render=array('error_field'=>$valid->error_field,'validation_errors'=>$valid->validation_errors);
             $this->render('userError',$data_to_render);

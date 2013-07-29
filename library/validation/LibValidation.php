@@ -9,16 +9,18 @@
  * rules are defined and must be given in the defined way
  * these rules are :
  * require -> field should not be empty
- * alpha -> field should contain only alphabets
- * alphanumeric -> field should contain alphanumeric characters
- * numeric -> field should contain only numeric values
+ * alpha -> field should contain 'only alphabets'
+ * alphanumeric -> field should contain 'only alphanumeric' characters
+ * numeric -> field should contain 'only numeric' values
  * email -> validate the email
  * numeric-> field should contain numeric data only
- * special -> validate occurrence of specified character.these character are !@#$%^&*.
+ * special -> validate occurrence of special character.these character are !@#$%^&*.(at least one special character must be present);
  *            if you want to exclude any character you can mention it with ':' Eg 'special:@' will not consider @ as special character
  * min -> validate field with min character length. Length must be specified with prefix ':'.if length is not mentioned 5 is default value.
  *            Eg 'min:5'
  * max -> validate field with maximum character length. Length will specified same as min.
+ *
+ * please do not use two contradictory rules together (like alpha and numeric)
  */
 class LibValidation{
 
@@ -71,6 +73,48 @@ class LibValidation{
         }
     }
     /*
+     * parse the rule and forward to corresponding method of the validation class to validate the data
+     */
+    private function parse_rule($field,$rule){
+        $param=null;
+        $temp_rule=$rule;
+        if($act_rule=strstr($rule,':',true)){
+            $params=strstr($rule,':');
+            $params=substr($params,1,strlen($params));
+            if(!(strpos($params,':'))){
+                $param=$params;
+            }
+            else{
+                do{
+                    $param[]=strstr($params,':',true);
+                    $params=strstr($params,':');
+                    $params=substr($params,1,strlen($params));
+                }  while(strpos($params,':'));
+                if(!empty($params)){
+                    $param[]=$params;
+                }
+            }
+            $rule=$act_rule;
+        }
+
+        $method='validate'.ucfirst($rule);
+        if((method_exists($this,$method))&&($this->validateParam($param,$rule))){
+            $value=$this->_data[$field];
+            if($this->$method($value,$param)===false){
+                $this->addErrorField($field);
+                $this->addError($field,$param,$rule);
+            }
+        }
+        else{
+            /*
+             * get the information from where this function is called
+             * debug_backtrace function will give all hierarchy of how call generated to function
+             */
+            $parent=debug_backtrace();
+            throw new ApplicationException("Syntax Error: rule '$temp_rule' is not defined properly",$parent[1]['file'],$parent[1]['line']);
+        }
+    }
+    /*
      * keep all error in one array so that user will able to use them
      */
     private function addError($field,$param,$rule){
@@ -95,7 +139,7 @@ class LibValidation{
                 $this->validation_errors["$field"][]="value of $field ({$this->_data[$field]}) is not valid email";
                 break;
             case 'special':
-                $this->validation_errors["$field"][]="value of $field ({$this->_data[$field]}) does not contain special characters";
+                $this->validation_errors["$field"][]="value of $field ({$this->_data[$field]}) should contain at least one special character";
                 break;
             case 'numeric':
                 $this->validation_errors["$field"][]="value of $field ({$this->_data[$field]}) should contain only numeric values";
@@ -108,11 +152,11 @@ class LibValidation{
     /*
      *function for checking field is been set and not empty
      */
-    private function validateRequire($field,$param=null){
-        if(!isset($this->_data[$field])){
+    private function validateRequire($value,$param=null){
+        if(!isset($value)){
             return false;
         }
-        if(is_string($this->_data[$field])&&strlen(trim($this->_data[$field]))<=0){
+        if(is_string($value)&&strlen(trim($value))<=0){
             return false;
         }
         return true;
@@ -121,27 +165,24 @@ class LibValidation{
     /*
      * validate the data should have at least given number of digit or character in it
      */
-    private function validateMin($field,$param=6){
-        if($this->validateParam($param)){
-            if(is_string($this->_data[$field])&&strlen(trim($this->_data[$field]))<$param){
+    private function validateMin($value,$param=6){
+            if(is_string($value)&&strlen(trim($value))<$param){
                 return false;
             }
-            elseif(is_numeric($this->_data[$field])&&(strlen((string)$this->_data[$field])<$param)){
+            elseif(is_numeric($value)&&(strlen((string)$value)<$param)){
                 return false;
             }
             return true;
-        }
-        return false;
     }
 
     /*
     * validate the data should have at max  given number of digit or character in it
     */
-    private function validateMax($field,$param=10){
-        if(is_string($this->_data[$field])&&strlen(trim($this->_data[$field]))>$param){
+    private function validateMax($value,$param=10){
+        if(is_string($value)&&strlen(trim($value))>$param){
             return false;
         }
-        elseif(is_numeric($this->_data[$field])&&(strlen((string)$this->_data[$field])>$param)){
+        elseif(is_numeric($value)&&(strlen((string)$value)>$param)){
             return false;
         }
         return true;
@@ -150,8 +191,8 @@ class LibValidation{
     /*
      * validate the field is alphabetic or not
      */
-    private function validateAlpha($field,$param){
-        if((1 === preg_match('/[a-zA-Z]+/',$this->_data[$field]))&&(0 == preg_match('/[0-9]+/',$this->_data[$field]))){
+    private function validateAlpha($value,$param){
+        if(1 === preg_match('/^[a-zA-Z]+$/',$value)){
             return true;
         }
         return false;
@@ -160,8 +201,8 @@ class LibValidation{
     /*
      * validate the field is alphanumeric or not
      */
-    private function validateAlphanumeric($field,$param){
-        if((1 === preg_match('/[a-zA-Z]+/',$this->_data[$field]))&&(1 === preg_match('/[0-9]+/',$this->_data[$field]))){
+    private function validateAlphanumeric($value,$param){
+        if(1 === preg_match('/^[a-zA-Z0-9]+$/',$value)){
             return true;
         }
         return false;
@@ -169,8 +210,8 @@ class LibValidation{
     /*
      * validate the field is numeric or not
      */
-    private function validateNumeric($field,$param){
-        if(1 === preg_match('/[0-9]+/',$this->_data[$field])&& 0=== (preg_match('/[a-zA-Z]+/',$this->_data[$field]))){
+    private function validateNumeric($value,$param){
+        if(1 === preg_match('/^[0-9]+$/',$value)){
             return true;
         }
         return false;
@@ -178,93 +219,61 @@ class LibValidation{
     /*
      * validate the email
      */
-    private function validateEmail($field,$param){
-        if(!filter_var($this->_data[$field],FILTER_VALIDATE_EMAIL)){
+    private function validateEmail($value,$param){
+        if(!filter_var($value,FILTER_VALIDATE_EMAIL)){
             return false;
         }
         return true;
     }
-    private function validateSpecial($field,$param){
+    private function validateSpecial($value,$param){
         $spl_Char=array('!','@','#','$','%','^','&','*');
         $preg_char='[';
         if(is_array($param)){
-            foreach($spl_Char as $value){
-                if(!in_array($value,$param)){
-                    $preg_char.=$value;
+            foreach($spl_Char as $char){
+                if(!in_array($char,$param)){
+                    $preg_char.=$char;
                 }
             }
             $preg_char.=']';
         }
         else{
-            foreach($spl_Char as $value){
-                if($value!==$param){
-                    $preg_char.=$value;
+            foreach($spl_Char as $char){
+                if($char!==$param){
+                    $preg_char.=$char;
                 }
             }
             $preg_char.=']';
         }
-        if(0===preg_match('/'.$preg_char.'/',$this->_data[$field])){
+        if(0===preg_match('/'.$preg_char.'/',$value)){
             return false;
         }
         return true;
     }
 
-    private function validateParam($param,$isArray=false){
+    private function validateParam($param,$rule){
         /*
          * when parameter ia expected to be a single number but found array,
          *first numeric field in array will be returned as parameter
          * if no numeric value is found,false will be return indicating invalid parameter
          */
-        if(is_array($param)&&!$isArray){
-            foreach($param as $k=>$value){
-                if(is_numeric($value)){
-                    return $value;
+        switch($rule){
+            case 'min':
+            case 'max':
+                if(is_array($param) || !is_numeric($param)){
+                    return false;
                 }
-            }
-            return false;
+                break;
+            case 'alpha':
+            case 'alphanumeric':
+            case 'numeric':
+            case 'email':
+            case 'require':
+                if(isset($param)){
+                    return false;
+                }
+                break;
         }
-        elseif(!is_numeric($param)&&!$isArray){
-            return false;
-        }
-        elseif(is_array($param)&&$isArray){
-            foreach($param as $key=>$value){
-                // if(is_string($value))
-            }
-        }
-        else{
-            return $param;
-        }
+       return true;
     }
-    /*
-     * parse the rule and forward to corresponding method of the validation class to validate the data
-     */
-    private function parse_rule($field,$rule){
-        $param=null;
-        if($act_rule=strstr($rule,':',true)){
-            $params=strstr($rule,':');
-            $params=substr($params,1,strlen($params));
-            if(!(strpos($params,':'))){
-                $param=$params;
-            }
-            else{
-                while(strpos($params,':')){
-                    $param[]=strstr($params,':',true);
-                    $params=strstr($params,':');
-                    $params=substr($params,1,strlen($params));
-                }
-            }
-            $rule=$act_rule;
-        }
 
-        $method='validate'.ucfirst($rule);
-        if(method_exists($this,$method)){
-            if($this->$method($field,$param)===false){
-                $this->addErrorField($field);
-                $this->addError($field,$param,$rule);
-            }
-        }
-        else{
-            $this->_isvalid=false;
-        }
-    }
 }
