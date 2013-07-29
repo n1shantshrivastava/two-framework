@@ -58,13 +58,40 @@ class Application{
             }
 
             if($cnt==count(self::$route)){
-                throw new ApplicationException('No action is bind to this url '.$request_url,__FILE__,__LINE__);
+                $url_array=explode('/',$request_url);
+                unset($url_array[0]);
+                $part_count=count($url_array);
+                switch($part_count){
+                    case 1:
+                        $controller_name=ucfirst($url_array[1]).'Controller';
+                        $method_name='index';
+                        $contObj=new $controller_name();
+                        if(method_exists($contObj,$method_name)){
+                            $contObj->$method_name();
+                        }
+                        else{
+                            throw new ApplicationException($method_name.' method does not exist in '.$controller_name.' controller',__FILE__,__LINE__);
+                        }
+                        break;
+                    case 2:
+                        $controller_name=ucfirst($url_array[1]).'Controller';
+                        $method_name=$url_array[2];
+                        $contObj=new $controller_name();
+                        if(method_exists($contObj,$method_name)){
+                            $contObj->$method_name();
+                        }
+                        else{
+                            throw new ApplicationException($method_name.' method does not exist in '.$controller_name.' controller',__FILE__,__LINE__);
+                        }
+                        break;
+                    default:
+                        throw new ApplicationException('No action is bind to this url '.$request_url,__FILE__,__LINE__);
+                }
             }
         }
         catch(Exception $e){
 
         }
-
     }
 
     public static function shutDown(){
