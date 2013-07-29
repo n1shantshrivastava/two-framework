@@ -37,7 +37,10 @@ class LibController{
         $app_path=Application::conf()->APP_URL;
         $sub_folder=str_replace($_SERVER['DOCUMENT_ROOT'],'',Application::conf()->APP_PATH);
         $sub_folder=substr($sub_folder,1,strlen($sub_folder)-2);
-        if($sub_folder===''){
+        /*
+         * depend upon developer's webroot's location , path need to adjust accordingly
+         */
+        if($sub_folder===''|| !isset($sub_folder)|| !$sub_folder){
             $app_path=substr($app_path,0,strlen($app_path)-1);
         }
         return($app_path.$sub_folder.''.$path);
