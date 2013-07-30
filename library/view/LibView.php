@@ -9,6 +9,8 @@ class LibView{
      * the view will be included  so that it will be available to send to browser
      */
     public function render($view){
+        $view=ucfirst($view);
+        $view.='View';
         $fileName=Application::conf()->APP_PATH.'protected/view/'.$view.'.php';
         if(file_exists($fileName)){
             require_once $fileName;

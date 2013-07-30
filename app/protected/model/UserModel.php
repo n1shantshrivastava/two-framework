@@ -7,6 +7,14 @@
  * To change this template use File | Settings | File Templates.
  */
 class UserModel extends LibModel{
-    public function __construct(){
+
+    public function getAll(){
+        return($this->findAll());
+    }
+    public function insert($data){
+        $this->insertData($data);
+    }
+    public function getByCondition($condition){
+        return($this->findByCondition($condition,array('id','fname')));
     }
 }

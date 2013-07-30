@@ -9,7 +9,7 @@
 
 class ErrorController extends LibController{
     public function index(){
-        $this->render('ErrorView',Application::$error);
+        $this->render('Error',Application::$error);
     }
     public function error(){
         $this->render('error');

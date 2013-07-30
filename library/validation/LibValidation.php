@@ -24,23 +24,24 @@
  */
 class LibValidation{
 
-    private $_data;
-    private $_rules;
-    private $_isvalid;
+    protected $data;
+    protected $rules;
+    protected $isvalid;
     public $validation_errors=array();
     public $error_field=array();
 
-    public function __construct($data,$rules=null){
-        $this->_data=$data;
-        if(empty($rules)||!isset($rules)){
-            $rules='requireAll';
-        }
-        $this->_rules=$rules;
-        $this->_isvalid=true;
+    public function __construct($data=null,$rules=null){
+        $this->data=$data;
+        $this->rules=$rules;
+        $this->isvalid=true;
+    }
+    public function __set($key,$value){
+        $this->{$key}=$value;
     }
 
     public function validate(){
-        foreach($this->_data as $field=>$value){
+        $this->isvalid=true;
+        foreach($this->_ata as $field=>$value){
             $rule_for_field=$this->get_rule($field);
             if(is_array($rule_for_field)){
                 foreach($rule_for_field as $key=>$rule){
@@ -50,18 +51,22 @@ class LibValidation{
             elseif(is_string($rule_for_field)){
                 $this->parse_rule($field,$rule_for_field);
             }
+            else{
+                $parent=debug_backtrace();
+                throw new ApplicationException("Error: unidentified Rule",$parent[1]['file'],$parent[1]['line']);
+            }
 
         }
         return $this->_isvalid;
     }
 
     private function get_rule($field){
-        if(is_array($this->_rules)){
-            if(array_key_exists($field,$this->_rules)){
-                return $this->_rules[$field];
+        if(is_array($this->rules)){
+            if(array_key_exists($field,$this->rules)){
+                return $this->rules[$field];
             }
         }
-        elseif(is_string($this->_rules)&&$this->_rules=='requireAll'){
+        elseif(is_string($this->rules)&&$this->rules=='requireAll'){
             return 'require';
         }
     }
@@ -99,7 +104,7 @@ class LibValidation{
 
         $method='validate'.ucfirst($rule);
         if((method_exists($this,$method))&&($this->validateParam($param,$rule))){
-            $value=$this->_data[$field];
+            $value=$this->data[$field];
             if($this->$method($value,$param)===false){
                 $this->addErrorField($field);
                 $this->addError($field,$param,$rule);
@@ -121,28 +126,28 @@ class LibValidation{
         $this->_isvalid=false;
         switch($rule){
             case 'require':
-                $this->validation_errors["$field"][]="value of $field ({$this->_data[$field]}) should not be empty";
+                $this->validation_errors["$field"][]="value of $field ({$this->data[$field]}) should not be empty";
                 break;
             case 'min':
-                $this->validation_errors["$field"][]="value of $field ({$this->_data[$field]}) should have minimum $param characters/digits";
+                $this->validation_errors["$field"][]="value of $field ({$this->data[$field]}) should have minimum $param characters/digits";
                 break;
             case 'max':
-                $this->validation_errors["$field"][]="value of $field ({$this->_data[$field]}) should have maximum $param characters/digits";
+                $this->validation_errors["$field"][]="value of $field ({$this->data[$field]}) should have maximum $param characters/digits";
                 break;
             case 'alpha':
-                $this->validation_errors["$field"][]="value of $field ({$this->_data[$field]}) should contain only alphabets";
+                $this->validation_errors["$field"][]="value of $field ({$this->data[$field]}) should contain only alphabets";
                 break;
             case 'alphanumeric':
-                $this->validation_errors["$field"][]="value of $field ({$this->_data[$field]}) should be alphanumeric";
+                $this->validation_errors["$field"][]="value of $field ({$this->data[$field]}) should be alphanumeric";
                 break;
             case 'email':
-                $this->validation_errors["$field"][]="value of $field ({$this->_data[$field]}) is not valid email";
+                $this->validation_errors["$field"][]="value of $field ({$this->data[$field]}) is not valid email";
                 break;
             case 'special':
-                $this->validation_errors["$field"][]="value of $field ({$this->_data[$field]}) should contain at least one special character";
+                $this->validation_errors["$field"][]="value of $field ({$this->data[$field]}) should contain at least one special character";
                 break;
             case 'numeric':
-                $this->validation_errors["$field"][]="value of $field ({$this->_data[$field]}) should contain only numeric values";
+                $this->validation_errors["$field"][]="value of $field ({$this->data[$field]}) should contain only numeric values";
                 break;
             default:
                 $this->validation_errors['other'][]="$rule is not defined in library";
