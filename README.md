@@ -1,37 +1,37 @@
 
 Two Framework Library
-=================
+=====================
 
 It is a framework library which provides following features.
 
-1) Routing
-2) Session handling
-3) Database
-4) Validation
-5) Request Handling
-6) Basic Exception Handling
+* Routing
+* Session handling
+* Database
+* Validation
+* Request Handling
+* Basic Exception Handling
 
 Follow design patterns
 
-1) Model View Controller 
-2) Singleton 
+* Model View Controller
+* Singleton
 
 
-REQUIREMENTS
+Requirements
 ============
 
 * PHP
 * Apache Server
 * MYSQL
 
-INSTALLATION
+Installation
 ==========
 
 The package has three parts i.e.
 
-1) app
-2) library
-3) Readme file
+* app
+* library
+* Readme file
 
 The app folder will contain the actual application code and the library folder has a base functionality code which will be useful for application building.
 
@@ -42,8 +42,8 @@ https://github.com/nishant-shrivastava/two-framework/archive/develop.zip
 Extract a zip file and copy the app and library folder in webroot directory.
 Give webroot path till app folder
 
-### FRAMEWORK DIRECTORY STRUCTURE
-===========================
+Framework Directory Structure
+=============================
 
 -app
 	-global			(It will contain all the application asset which will go under respective folder)
@@ -68,13 +68,13 @@ Give webroot path till app folder
 	-view			(contain LibView which function like render,make view,redirect etc )
 	Application.php	(contain object of application components like db,session,conf etc )
 
-CONFIGURATION
+Configuration
 =============
 
 There are three types of configuration
 The configuration must be in app/protected/config
 
-1) Common configuration
+* Common configuration
 	- It should be in common.conf.php
 	- It contain configurations like path,app_mode,multi_mode
 	- Setting for app path and library path
@@ -88,7 +88,7 @@ The configuration must be in app/protected/config
 	  Enable this mode if your application is used by mobile,pc etc
 	  It you want to enable just write 'on'
 
-2) Database configuration
+* Database configuration
 	- It should be in db.conf.php
 	- It contain configurations like host,user,password,db_driver,persistent_connection,charset,collate etc
 	- Setting for database configuration
@@ -101,7 +101,7 @@ The configuration must be in app/protected/config
 	  Default CHARSET is utf8
 	  for eg. array('HOST'=>'localhost', 'DATABASE'=>'database', 'USER'=>'root', 'PASSWORD'=>'1234', 'DB_DRIVER'=>'mysql',  'PERSISTENT_CONNECTION'=>true, 'COLLATE'=>'utf8_unicode_ci', 'CHARSET'=>'utf8');	
 
-3) Route configuration
+* Route configuration
 	- It should be in route.conf.php
 	- It contain configurations like method type,path,action etc
 	- Setting of action to particular route
@@ -111,35 +111,35 @@ The configuration must be in app/protected/config
 	  path can be anything which start from '/'
 	  action should be controller_name~method_name
 
-BUILDING CONTROLLER
+Building Controller
 ===================
 
-1) The controller must extend LibController class
-2) The controller name should be in capital case
-   for eg. UserController
-3) The controller name must have 'Controller' postfix
-4) All controller methods should be in camel case
-5) It should be create in app/protected/controller
+    - The controller must extend LibController class
+    - The controller name should be in capital case
+      for eg. UserController
+    - The controller name must have 'Controller' postfix
+    - All controller methods should be in camel case
+    - It should be create in app/protected/controller
 
-BUILDING MODEL
+Building Model
 ==============
 
-1) The model must extend LibModel class
-2) The model name should be in capital case
-   for eg. UserModel
-3) The model name must have 'Model' postfix
-4) All model methods should be in camel case
-5) It should be create in app/protected/model
+    - The model must extend LibModel class
+    - The model name should be in capital case
+      for eg. UserModel
+    - The model name must have 'Model' postfix
+    - All model methods should be in camel case
+    - It should be create in app/protected/model
 
-BUILDING VIEW
-==============
+Building View
+=============
 
-1) The view name should be in capital case
-   for eg. UserView
-2) The view name must have 'View' postfix
-3) It should be create in app/protected/view
+    - The view name should be in capital case
+      for eg. UserView
+    - The view name must have 'View' postfix
+    - It should be create in app/protected/view
 
-ROUTING
+Routing
 =======
 
 	- It should define in route.conf.php
@@ -163,7 +163,7 @@ ROUTING
 	- If requested url is not present in route.conf.php and also it is not correct then error is thrown like
 		No action is bind to this url /maindsf/sdf/sdf 
 
-SESSION HANDLING
+Session Handling
 ================
 
 You can do session handling by following method
@@ -176,7 +176,7 @@ You can do session handling by following method
 
     - The variable_name should not be empty.
 
-VALIDATION
+Validation
 ==========
 
 	- Rules are predefined for validation
