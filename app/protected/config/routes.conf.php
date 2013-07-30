@@ -10,12 +10,12 @@
 /**
  * Setting of action to particular route
  * All setting are case sensitive.
- * array('method'=>'get','path'=>'/','action'=>'MainController~index');
+ * array('method'=>'get','path'=>'/','action'=>'Main~index');
  * method type can be get,post
  * path can be anything which start from '/'
  * action should be controllername~methodname
  */
 
-$route[]=array('method'=>'get','path'=>'/','action'=>'MainController~index');
-$route[]=array('method'=>'get','path'=>'/error','action'=>'ErrorController~error');
-$route[]=array('method'=>'get','path'=>'/goto','action'=>'MainController~gotoOther');
+$route[]=array('method'=>'get','path'=>'/','action'=>'Main~index');
+$route[]=array('method'=>'get','path'=>'/error','action'=>'Error~error');
+$route[]=array('method'=>'get','path'=>'/goto','action'=>'Main~gotoOther');

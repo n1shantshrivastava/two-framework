@@ -46,6 +46,7 @@ class Application{
             for($cnt=0;$cnt<count(self::$route);$cnt++){
                 if(strcasecmp(self::$route[$cnt]['method'],$_SERVER['REQUEST_METHOD'])==0 && strcasecmp(self::$route[$cnt]['path'],$request_url)==0){
                     list($controller_name,$method_name)=explode('~',self::$route[$cnt]['action']);
+                    $controller_name=ucfirst($controller_name).'Controller';
                     $contObj=new $controller_name();
                     if(method_exists($contObj,$method_name)){
                         $contObj->$method_name();
