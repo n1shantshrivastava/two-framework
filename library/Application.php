@@ -213,7 +213,7 @@ class Application{
 
 class ApplicationException extends Exception
 {
-    public function __construct($msg,$file_name,$line_no){
+    public function __construct($msg,$file_name=null,$line_no=null){
         Application::$error=array('msg'=>$msg,'file_name'=>$file_name,'line_no'=>$line_no);
         Application::shutDown();
     }

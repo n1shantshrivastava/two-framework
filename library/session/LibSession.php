@@ -13,7 +13,10 @@ class LibSession{
     public $session_id;
 
     public function __construct(){
-        session_start();
+        if(!isset($_SESSION))
+        {
+            session_start();
+        }
         if(isset($_SESSION)){
             if(empty($_SESSION))
             {
@@ -29,12 +32,19 @@ class LibSession{
     public function start(){
         try{
             if(!$this->is_enable){
-                if(session_start()){
-                    $this->session_id=session_id();
-                    $this->is_enable=true;
+                if(!isset($_SESSION)){
+                    if(session_start()){
+                        $this->session_id=session_id();
+                        $this->is_enable=true;
+                    }
+                    else{
+                        $parent=debug_backtrace();
+                        throw new ApplicationException('Session not started',$parent[0]['file'],$parent[0]['line']);
+                    }
                 }
                 else{
-                    throw new ApplicationException('Session not started',__FILE__,__LINE__);
+                    $this->session_id=session_id();
+                    $this->is_enable=true;
                 }
             }
         }
@@ -52,11 +62,22 @@ class LibSession{
                     $this->is_enable=false;
                 }
                 else{
-                    throw new ApplicationException('Session not destroyed',__FILE__,__LINE__);
+                    $parent=debug_backtrace();
+                    throw new ApplicationException('Session not destroyed',$parent[0]['file'],$parent[0]['line']);
                 }
             }
             else{
-                throw new ApplicationException('Trying to destroy uninitialized session',__FILE__,__LINE__);
+                if(empty($_SESSION)){
+                    session_unset();
+                    if(session_destroy()){
+                        $this->session_id=session_id();
+                        $this->is_enable=false;
+                    }
+                    else{
+                        $parent=debug_backtrace();
+                        throw new ApplicationException('Trying to destroy uninitialized session',$parent[0]['file'],$parent[0]['line']);
+                    }
+                }
             }
         }
         catch(Exception $e){
@@ -67,8 +88,15 @@ class LibSession{
     public function add($variable_name,$value){
         try{
             if($this->is_enable){
-                if($variable_name!=='')
-                    $_SESSION[$variable_name]=$value;
+                if($variable_name!==''){
+                    if(!isset($_SESSION[$variable_name])){
+                        $_SESSION[$variable_name]=$value;
+                    }
+                    else{
+                        $parent=debug_backtrace();
+                        throw new ApplicationException('Session variable already added',$parent[0]['file'],$parent[0]['line']);
+                    }
+                }
                 else{
                     $parent=debug_backtrace();
                     throw new ApplicationException('Session variable should not be empty',$parent[0]['file'],$parent[0]['line']);
@@ -86,8 +114,15 @@ class LibSession{
 
     public function delete($variable_name){
         if($this->is_enable){
-            if($variable_name!=='')
-                unset($_SESSION[$variable_name]);
+            if($variable_name!==''){
+                if(!isset($_SESSION[$variable_name])){
+                    unset($_SESSION[$variable_name]);
+                }
+                else{
+                    $parent=debug_backtrace();
+                    throw new ApplicationException('Session variable is not set',$parent[0]['file'],$parent[0]['line']);
+                }
+            }
             else{
                 $parent=debug_backtrace();
                 throw new ApplicationException('Session variable should not be empty',$parent[0]['file'],$parent[0]['line']);
@@ -102,8 +137,15 @@ class LibSession{
     public function update($variable_name,$value){
         try{
             if($this->is_enable){
-                if($variable_name!=='')
-                    $_SESSION[$variable_name]=$value;
+                if($variable_name!==''){
+                    if(!isset($_SESSION[$variable_name])){
+                        $_SESSION[$variable_name]=$value;
+                    }
+                    else{
+                        $parent=debug_backtrace();
+                        throw new ApplicationException('Session variable is not set',$parent[0]['file'],$parent[0]['line']);
+                    }
+                }
                 else{
                     $parent=debug_backtrace();
                     throw new ApplicationException('Session variable should not be empty',$parent[0]['file'],$parent[0]['line']);
@@ -135,6 +177,21 @@ class LibSession{
                     $parent=debug_backtrace();
                     throw new ApplicationException('Session variable should not be empty',$parent[0]['file'],$parent[0]['line']);
                 }
+            }
+            else{
+                $parent=debug_backtrace();
+                throw new ApplicationException('Session is not started',$parent[0]['file'],$parent[0]['line']);
+            }
+        }
+        catch(Exception $e){
+
+        }
+    }
+
+    public function getAll(){
+        try{
+            if($this->is_enable){
+                return $_SESSION;
             }
             else{
                 $parent=debug_backtrace();
