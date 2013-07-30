@@ -45,27 +45,27 @@ Give webroot path till app folder
 Framework Directory Structure
 =============================
 
--app
-	-global			(It will contain all the application asset which will go under respective folder)
-		-css
-		-flash
-		-img
-		-js
-		-video
-	-protected
-		-config		(contain configuration of db,route and path etc)		
-		-controller	(contain all controllers which will extends LibController )
-		-model		(contain all models which will extends LibModel )
-		-view		(contain all view )
+- app
+	- global			(It will contain all the application asset which will go under respective folder)
+		- css
+		- flash
+		- img
+		- js
+		- video
+	- protected
+		- config		(contain configuration of db,route and path etc)
+		- controller	(contain all controllers which will extends LibController )
+		- model		(contain all models which will extends LibModel )
+		- view		(contain all view )
 	.htaccess		(For routing all request towards index.php)	
 	index.php		(Entry Point)
--library
-	-configuration	(contain classes for setting configurations to application )
-	-controller		(contain LibController which has function like make view,render,redirect etc)
-	-model			(contain LibModel which provides functionality for managing connections,managing CRUD Operations etc )
-	-session		(contain LibSession which has functions like start,destroy,add,update,delete etc )
-	-validation		(contain LibValidation which provides validations like required,min,numeric,alphanumeric,special char etc )
-	-view			(contain LibView which function like render,make view,redirect etc )
+- library
+	- configuration	(contain classes for setting configurations to application )
+	- controller		(contain LibController which has function like make view,render,redirect etc)
+	- model			(contain LibModel which provides functionality for managing connections,managing CRUD Operations etc )
+	- session		(contain LibSession which has functions like start,destroy,add,update,delete etc )
+	- validation		(contain LibValidation which provides validations like required,min,numeric,alphanumeric,special char etc )
+	- view			(contain LibView which function like render,make view,redirect etc )
 	Application.php	(contain object of application components like db,session,conf etc )
 
 Configuration
