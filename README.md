@@ -42,7 +42,7 @@ https://github.com/nishant-shrivastava/two-framework/archive/develop.zip
 Extract a zip file and copy the app and library folder in webroot directory.
 Give webroot path till app folder
 
-FRAMEWORK DIRECTORY STRUCTURE
+### FRAMEWORK DIRECTORY STRUCTURE
 ===========================
 
 -app
