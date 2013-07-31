@@ -57,8 +57,8 @@ Framework Directory Structure
 		- controller	(contain all controllers which will extends LibController )
 		- model		(contain all models which will extends LibModel )
 		- view		(contain all view )
-	.htaccess		(For routing all request towards index.php)	
-	index.php		(Entry Point)
+	- .htaccess		(For routing all request towards index.php)
+	- index.php		(Entry Point)
 - library
 	- configuration	(contain classes for setting configurations to application )
 	- controller		(contain LibController which has function like make view,render,redirect etc)
@@ -66,7 +66,7 @@ Framework Directory Structure
 	- session		(contain LibSession which has functions like start,destroy,add,update,delete etc )
 	- validation		(contain LibValidation which provides validations like required,min,numeric,alphanumeric,special char etc )
 	- view			(contain LibView which function like render,make view,redirect etc )
-	Application.php	(contain object of application components like db,session,conf etc )
+	- Application.php	(contain object of application components like db,session,conf etc )
 
 Configuration
 =============
@@ -94,12 +94,12 @@ The configuration must be in app/protected/config
 	- Setting for database configuration
 	  Database settings are case sensitive.
 	  First five parameters are compulsory.
-	  To set collation and charset of the db connection, use the key 'collate' and 'charset'
-	  Default PERSISTENT_CONNECTION is false
-	  Default COLLATE is utf8_unicode_ci
-	  Default DB_DRIVER is mysql
-	  Default CHARSET is utf8
-	  for eg. array('HOST'=>'localhost', 'DATABASE'=>'database', 'USER'=>'root', 'PASSWORD'=>'1234', 'DB_DRIVER'=>'mysql',  'PERSISTENT_CONNECTION'=>true, 'COLLATE'=>'utf8_unicode_ci', 'CHARSET'=>'utf8');	
+	  To set collation and charset of the db connection, use the key 'collate' and 'charset'.
+	  Default PERSISTENT_CONNECTION is false.
+	  Default COLLATE is utf8_unicode_ci.
+	  Default DB_DRIVER is mysql.
+	  Default CHARSET is utf8.
+    - for eg. array('HOST'=>'localhost', 'DATABASE'=>'database', 'USER'=>'root', 'PASSWORD'=>'1234', 'DB_DRIVER'=>'mysql',  'PERSISTENT_CONNECTION'=>true, 'COLLATE'=>'utf8_unicode_ci', 'CHARSET'=>'utf8');
 
 * Route configuration
 	- It should be in route.conf.php
@@ -143,7 +143,7 @@ Routing
 =======
 
 	- It should define in route.conf.php
-	- Sytax for it
+	- Syntax for it
 		$route[]=array('method'=>'get','path'=>'/','action'=>'Main~index');
 		
 		method can be get,post
