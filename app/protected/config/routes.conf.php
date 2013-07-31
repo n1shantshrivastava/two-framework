@@ -17,5 +17,6 @@
  */
 
 $route[]=array('method'=>'get','path'=>'/','action'=>'Main~index');
+$route[]=array('method'=>'get','path'=>'/new','action'=>'Main~newRecord');
 $route[]=array('method'=>'get','path'=>'/error','action'=>'Error~error');
 $route[]=array('method'=>'get','path'=>'/goto','action'=>'Main~gotoOther');

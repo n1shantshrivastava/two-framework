@@ -32,8 +32,10 @@ class LibModel {
         else{
             $this->primaryKey='id';
         }
-    }
+        //-------------------------------------------------------------------
 
+
+    }
 
     public function __set($key,$value){
         $this->{$key}=$value;
@@ -42,46 +44,83 @@ class LibModel {
     public function insertData($data=null){
         $db=LibDatabase::getDbInstance();
         if(!empty($data)){
-            return($db->insert($this->tableName,$data));
+            return($db->generateQuery('Insert',$this->tableName,$data,null));
         }
 
     }
 
-    public function update($data,$condition=null){
+    public function updateData($data,$condition=null){
         $db=LibDatabase::getDbInstance();
-        if(empty($condition)&& !isset($this->{$this->primaryKey})){
-            $parent=debug_backtrace();
-            $count=count($parent);
-            echo $count;
-            echo '<pre>';
-            //var_dump($parent);
-            echo '</pre>';
-            //throw new ApplicationException('Specify condition for updation',$parent[$count-4]['file'],$parent[$count-4]['line']);
-        }
-        return($db->update($this->tableName,$data,$condition));
+        return($db->generateQuery('Update',$this->tableName,$data,$condition));
     }
 
-    public function delete($condition){
+    public function deleteData($condition=null){
         $db=LibDatabase::getDbInstance();
-        return($db->delete($this->tableName,$condition));
+        if(empty($condition)){
+            $condition=array($this->primaryKey,'=',$this->{$this->primaryKey});
+        }
+        $cnt=$db->generateQuery('Delete',$this->tableName,null,$condition);
+        if($cnt>0){
+            if(isset($this->{$this->primaryKey})){
+                $fields=$this->getFields();
+                $data=array();
+                foreach($this as $key=>$value){
+                    if(in_array($key,$fields)){
+                        unset($this->{$key});
+                    }
+                }
+            }
+        }
+        return($cnt);
     }
+
     public function findAll(){
         $db=LibDatabase::getDbInstance();
-        return($db->search($this->tableName,null,null));
+        return($db->generateQuery('Find',$this->tableName,null,null));
     }
+
     public function findSpecific($column,$condition=null){
         $db=LibDatabase::getDbInstance();
-        return($db->search($this->tableName,$condition,$column));
+        return($db->generateQuery('Find',$this->tableName,$column,$condition));
     }
+
     public function findByCondition($condition,$column=null){
         $db=LibDatabase::getDbInstance();
-        return($db->search($this->tableName,$condition,$column));
+        return($db->generateQuery('Find',$this->tableName,$column,$condition));
     }
-    public function save(){
 
+    //------------------------------------------------------------------------
+    public function save(){
+        $db=LibDatabase::getDbInstance();
+        $fields=$this->getFields();
+        $data=array();
+        foreach($this as $key=>$value){
+            if(in_array($key,$fields)){
+                $data[$key]=$value;
+            }
+        }
+        if(!empty($data)){
+            if(($db->generateQuery('insertOrUpdate',$this->tableName,$data,null))>0){
+                $arr=$db->fireQuery("select LAST_INSERT_ID() as id");
+                $this->{$this->primaryKey}=$arr[0]['id'];
+
+            }
+        }
+
+        //return());
     }
+    //----------------------------------------------------------------------------
     public function query($string){
         $db=LibDatabase::getDbInstance();
         return($db->fireQuery($string));
+    }
+    private function getFields(){
+        $db=LibDatabase::getDbInstance();
+        $rows=$db->fireQuery('SHOW COLUMNS FROM user');
+        $fields=array();
+        foreach($rows as $row){
+            $fields[]=$row['Field'];
+        }
+        return $fields;
     }
 }

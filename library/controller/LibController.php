@@ -14,7 +14,7 @@ class LibController{
                 $this->makeView()->$key=$value;
             }
         }
-        $this->makeView()->render($full_path);
+        $this->makeView()->render($full_path,get_class($this));
     }
 
     /*

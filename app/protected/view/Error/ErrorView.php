@@ -1,8 +1,5 @@
-<html>
-    <head>
-        <title>whoops an error has occurred</title>
-    </head>
-    <body>
+<?php $this->title='Error view'?>
+<?php $this->fetch('header'); ?>
     <h1>Whoops an error has occurred.</h1>
     <h3>Error:</h3>
     <?php echo $this->msg;?>
@@ -10,5 +7,4 @@
     <?php echo $this->file_name;?>
     <h3>Line No:</h3>
     <?php echo $this->line_no;?>
-    </body>
-</html>
+<?php $this->fetch('footer'); ?>

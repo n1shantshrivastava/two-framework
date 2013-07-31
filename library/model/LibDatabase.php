@@ -18,7 +18,7 @@ private static $instance=null;
             ));
         }
         catch(Exception $e){
-            throw new ApplicationException("Error in establishing the connection",__FILE__,__LINE__);
+            throw new ApplicationException("Error in establishing the Database connection",__FILE__,__LINE__);
         }
     }
     public static function getDbInstance(){
@@ -68,66 +68,45 @@ private static $instance=null;
         }
     }
 
-    public function insert($table,$data){
-        $sql='insert into '.$table.'(';
-        $values='values(';
-        foreach($data as $key=>$value){
-            $sql.=$key.',';
-            $values.='\''.$value.'\',';
-        }
-        $sql=substr($sql,0,strlen($sql)-1);
-        $values=substr($values,0,strlen($values)-1);
-        $sql.=')';
-        $values.=')';
-        $sql.=' '.$values;
-        $stmt=$this->connection->prepare($sql);
-        $stmt->execute();
-        $this->getDbError($stmt->errorInfo());
 
+    public function generateQuery($operation,$table,$data,$conditions){
+        $method='generate'.$operation;
+        if(method_exists($this,$method)){
+            $query=$this->$method($table,$data,$conditions);
+            $return_value=$this->fireQuery($query);
+            return $return_value;
+        }
     }
-    public function update($table,$data,$conditions){
-        $sql='update '.$table.' set ';
+    public function generateUpdate($table,$data,$conditions){
+        $query='update '.$table.' set';
         $input=array();
         foreach($data as $key=>$value){
-            $sql.=$key.'=?,';
-            $input[]=$value;
+            $query.=' '.$key.'=';
+            $query.='\''.$value.'\',';
         }
-        $sql=substr($sql,0,strlen($sql)-1);
+        $query=substr($query,0,strlen($query)-1);
         if(!empty($conditions)){
             $where=$this->generateCondition($conditions);
-            $sql.=' where '.$where;
+            $query.=' where '.$where;
         }
-
-        $stmt=$this->connection->prepare($sql);
-        $stmt->execute($input);
-
-        $this->getDbError($stmt->errorInfo());
+        return $query;
     }
 
-    public function delete($table,$conditions){
+    public function generateDelete($table,$data,$conditions){
         if(!empty($conditions)){
             $where=$this->generateCondition($conditions);
             $query='delete from '.$table.' where '.$where;
-            $cnt=$this->connection->exec($query);
-            if($cnt>0){
-                return ' '.$cnt.' row(s)  deleted';
-            }
-            else{
-                $this->getDbError($this->connection->errorInfo());
-                return 'Nothing to delete';
-            }
-
+            return $query;
         }
     }
 
-    public function search($table,$conditions,$columns){
+    public function generateFind($table,$columns,$conditions){
         $query='select ';
         if(!empty($columns)){
             foreach($columns as $col){
                 $query.=$table.'.'.$col.',';
             }
             $query=substr($query,0,strlen($query)-1);
-
         }
         else{
             $query.='*';
@@ -138,24 +117,20 @@ private static $instance=null;
             $where=$this->generateCondition($conditions);
             $query.=' where '.$where;
         }
-        $result=$this->connection->query($query);
-        if(!empty($result)){
-            $rows = $result->fetchAll(PDO::FETCH_ASSOC);
-            return $rows;
-        }
-        $this->getDbError($this->connection->errorInfo());
-        return 'Table is empty';
+        return $query;
     }
 
-    public function fireQuery($string){
-        if(strpos($string,'select')!==false){
+    public function fireQuery($string,$input=null){
+        if(stripos($string,'select')!==false||stripos($string,'show')!==false){
             $result=$this->connection->query($string);
+            $this->getDbError($this->connection->errorInfo());
             if(!empty($result)){
                 $rows = $result->fetchAll(PDO::FETCH_ASSOC);
-                $this->getDbError($this->connection->errorInfo());
                 return $rows;
             }
-            $this->getDbError($this->connection->errorInfo());
+            else{
+                return 0;
+            }
         }
         else{
             $count=$this->connection->exec($string);
@@ -164,8 +139,35 @@ private static $instance=null;
         }
 
     }
+
+    public function generateInsertOrUpdate($table,$data,$condition){
+        $query=$this->generateInsert($table,$data,null);
+        $query.=' on duplicate key update ';
+        foreach($data as $key=>$value){
+            $query.=$key.'=';
+            $query.='\''.$value.'\',';
+        }
+        $query=substr($query,0,strlen($query)-1);
+        return $query;
+    }
+
+    private function generateInsert($table,$data,$condition){
+        $query='insert into '.$table.'(';
+        $values='values(';
+        foreach($data as $key=>$value){
+            $query.=$key.',';
+            $values.='\''.$value.'\',';
+        }
+        $query=substr($query,0,strlen($query)-1);
+        $values=substr($values,0,strlen($values)-1);
+        $query.=')';
+        $values.=')';
+        $query.=' '.$values;
+        return $query;
+    }
+
     private function getDbError($error_arr){
-        if(!empty($error_arr)&&!empty ($error_arr[0])){
+        if(!empty($error_arr)&&!empty ($error_arr[0])&& $error_arr[0]!=0){
             $parent=debug_backtrace();
             $count=count($parent);
             throw new ApplicationException($error_arr[2],$parent[$count-4]['file'],$parent[$count-4]['line']);
