@@ -44,7 +44,7 @@ class Application{
             $request_url=$url_parts[0];
 
             for($cnt=0;$cnt<count(self::$route);$cnt++){
-                if(strcasecmp(self::$route[$cnt]['method'],$_SERVER['REQUEST_METHOD'])==0 && strcasecmp(self::$route[$cnt]['path'],$request_url)==0){
+                if(strcasecmp(self::$route[$cnt]['method'],$_SERVER['REQUEST_METHOD'])==0 && strcasecmp(self::$route[$cnt]['path'],$request_url)==0 && strpos(self::$route[$cnt]['path'],"[")===false){
                     list($controller_name,$method_name)=explode('~',self::$route[$cnt]['action']);
                     $controller_name=ucfirst($controller_name).'Controller';
                     $contObj=new $controller_name();
@@ -64,34 +64,92 @@ class Application{
                 $part_count=count($url_array);
                 switch($part_count){
                     case 1:
-                        $controller_name=ucfirst($url_array[1]).'Controller';
-                        $method_name='index';
-                        $contObj=new $controller_name();
-                        if(method_exists($contObj,$method_name)){
-                            $contObj->$method_name();
+                        if($url_array[1]!==''){
+                            $controller_name=ucfirst($url_array[1]).'Controller';
+                            if(file_exists(self::conf()->APP_PATH."protected/controller/$controller_name.php")){
+                                $method_name='index';
+                                $contObj=new $controller_name();
+                                if(method_exists($contObj,$method_name)){
+                                    $contObj->$method_name();
+                                }
+                                else{
+                                    throw new ApplicationException($method_name.' method does not exist in '.$controller_name.' controller',__FILE__,__LINE__);
+                                }
+                            }
+                            else{
+                                self::isSmartUrl($request_url);
+                            }
                         }
                         else{
-                            throw new ApplicationException($method_name.' method does not exist in '.$controller_name.' controller',__FILE__,__LINE__);
+                            throw new ApplicationException('No action is bind to this url '.$request_url.' for '.$_SERVER['REQUEST_METHOD'].' method',__FILE__,__LINE__);
                         }
+
                         break;
                     case 2:
                         $controller_name=ucfirst($url_array[1]).'Controller';
-                        $method_name=$url_array[2];
-                        $contObj=new $controller_name();
-                        if(method_exists($contObj,$method_name)){
-                            $contObj->$method_name();
+                        if(file_exists(self::conf()->APP_PATH."protected/controller/$controller_name.php")){
+                            $method_name=$url_array[2];
+                            $contObj=new $controller_name();
+                            if(method_exists($contObj,$method_name)){
+                                $contObj->$method_name();
+                            }
+                            else{
+                                throw new ApplicationException($method_name.' method does not exist in '.$controller_name.' controller',__FILE__,__LINE__);
+                            }
                         }
                         else{
-                            throw new ApplicationException($method_name.' method does not exist in '.$controller_name.' controller',__FILE__,__LINE__);
+                            self::isSmartUrl($request_url);
                         }
                         break;
                     default:
-                        throw new ApplicationException('No action is bind to this url '.$request_url,__FILE__,__LINE__);
+                        self::isSmartUrl($request_url);
                 }
             }
         }
         catch(Exception $e){
 
+        }
+    }
+
+    public static function isSmartUrl($request_url){
+        $url_array=explode('/',$request_url);
+        unset($url_array[0]);
+        $part_count=count($url_array);
+        $is_bind=false;
+        for($cnt=0;$cnt<count(self::$route);$cnt++){
+            if(strcasecmp(self::$route[$cnt]['method'],$_SERVER['REQUEST_METHOD'])==0 && strpos(self::$route[$cnt]['path'],"[")!==false){
+                $route_url_array=explode('/',self::$route[$cnt]['path']);
+                unset($route_url_array[0]);
+                $temp_url_array=$url_array;
+                if($part_count===count($route_url_array)){
+                    for($i=1;$i<=count($route_url_array);$i++){
+                        if(strcmp($route_url_array[$i],$url_array[$i])===0){
+                            unset($temp_url_array[$i]);
+                        }
+                        else{
+                            if($route_url_array[$i][0]==="["){
+                                $_GET[substr($route_url_array[$i],1,strlen($route_url_array[$i])-2)]=$temp_url_array[$i];
+                                list($controller_name,$method_name)=explode('~',self::$route[$cnt]['action']);
+                                $controller_name=ucfirst($controller_name).'Controller';
+                                $contObj=new $controller_name();
+                                if(method_exists($contObj,$method_name)){
+                                    $contObj->$method_name();
+                                }
+                                else{
+                                    throw new ApplicationException($method_name.' method does not exist in '.$controller_name.' controller',__FILE__,__LINE__);
+                                }
+                                $is_bind=true;
+                                break;
+                            }
+                            else
+                                break;
+                        }
+                    }
+                }
+            }
+        }
+        if(!$is_bind){
+            throw new ApplicationException('No action is bind to this url '.$request_url.' for '.$_SERVER['REQUEST_METHOD'].' method',__FILE__,__LINE__);
         }
     }
 

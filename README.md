@@ -92,23 +92,38 @@ The configuration must be in app/protected/config
 	- It should be in db.conf.php
 	- It contain configurations like host,user,password,db_driver,persistent_connection,charset,collate etc
 	- Setting for database configuration
-	  Database settings are case sensitive.
-	  First five parameters are compulsory.
-	  To set collation and charset of the db connection, use the key 'collate' and 'charset'.
-	  Default PERSISTENT_CONNECTION is false.
-	  Default COLLATE is utf8_unicode_ci.
-	  Default DB_DRIVER is mysql.
-	  Default CHARSET is utf8.
+
+	  Database settings are case sensitive
+	  First five parameters are compulsory
+	  To set collation and charset of the db connection, use the key 'collate' and 'charset'
+	  Default PERSISTENT_CONNECTION is false
+	  Default COLLATE is utf8_unicode_ci
+	  Default DB_DRIVER is mysql
+	  Default CHARSET is utf8
     - for eg. array('HOST'=>'localhost', 'DATABASE'=>'database', 'USER'=>'root', 'PASSWORD'=>'1234', 'DB_DRIVER'=>'mysql',  'PERSISTENT_CONNECTION'=>true, 'COLLATE'=>'utf8_unicode_ci', 'CHARSET'=>'utf8');
 
 * Route configuration
 	- It should be in route.conf.php
+	- All setting are case sensitive.
 	- It contain configurations like method type,path,action etc
-	- Setting of action to particular route
-	  All setting are case sensitive.
-	  array('method'=>'get','path'=>'/','action'=>'Main~index');
+	- The Route configuration can be done by two ways.First way for normal urls and second way for smart urls.
+	- Setting for normal urls
+
+	  $route[]=array('method'=>'get','path'=>'/','action'=>'Main~index');
+
+	  Here,
 	  method type can be get,post
 	  path can be anything which start from '/'
+	  action should be controller_name~method_name
+	- Setting for smart urls
+
+	  $route[]=array('method'=>'get','path'=>'/profile/[id]','action'=>'Main~profile');
+
+	  Here,
+	  method type can be get,post
+	  path can be anything which start from '/'
+	  In path, the last part should be in square bracket containing a variable name
+	  The variable can be accessible in method by respective global array means If method type is get then $_GET and If method type is post then $_POST
 	  action should be controller_name~method_name
 
 Building Controller
@@ -120,6 +135,13 @@ Building Controller
     - The controller name must have 'Controller' postfix
     - All controller methods should be in camel case
     - It should be create in app/protected/controller
+    - Example
+
+      class MainController extends LibController{
+          public function index(){
+                // do your stuff
+          }
+      }
 
 Building Model
 ==============
@@ -130,6 +152,14 @@ Building Model
     - The model name must have 'Model' postfix
     - All model methods should be in camel case
     - It should be create in app/protected/model
+    - Each model will be associated with only one table
+    - If table name is not mentioned then model name will be taken as table name (for eg. UserModel will have user table)
+    - Primary key of the table should be 'id'. If you want to change it you can set $primaryKey variable.
+    - Example
+
+      class UserModel extends LibModel{
+            // do your stuff
+      }
 
 Building View
 =============
@@ -143,13 +173,28 @@ Routing
 =======
 
 	- It should define in route.conf.php
-	- Syntax for it
+	- Routing can be done by three ways
+	- First:(Normal url)
+	    Syntax for adding new route is
+
 		$route[]=array('method'=>'get','path'=>'/','action'=>'Main~index');
-		
+
+		Here,
 		method can be get,post
 		path should be start from '/'
-		action contain controller_name~method_name
-	- You can call a request which are not configured but has perfect controller name and method name like as follows
+		action should be controller_name~method_name
+	- Second:(Smart url)
+	    Syntax for adding new route is
+
+		$route[]=array('method'=>'get','path'=>'/profile/[id]','action'=>'Main~profile');
+
+       Here,
+	   method type can be get,post
+	   path can be anything which start from '/'
+	   In path, the last part should be in square bracket containing a variable name
+	   The variable can be accessible in method by respective global array means If method type is get then $_GET and If method type is post then $_POST
+	   action should be controller_name~method_name
+	-Third:(Direct url) You can call a request which are not configured but has perfect controller name and method name like as follows
 
 		eg.1) /User 
 				- It will try to call index method of UserController
@@ -158,10 +203,52 @@ Routing
 
     - You can send url parameters like as follow
 
+        /User?uname=swpanil&age=23&city=pune
         /User/add?uname=swpanil&age=23&city=pune
 
 	- If requested url is not present in route.conf.php and also it is not correct then error is thrown like
-		No action is bind to this url /maindsf/sdf/sdf 
+		No action is bind to this url /maindsf/sdf/sdf for GET method
+
+Database Handling
+=================
+
+You can do database handling by following method
+	- insertData( array $data)
+
+	  inserts $data into table,$data will be key-value pair of field-of-table and value
+    - updateData( array $data, array $condition)
+
+      updates data on specified $conditions
+	- deleteData( array $condition)
+
+	  deletes data on specified conditions.
+	- findAll()
+
+	  gives all record from table;
+	- findSpecified( array $column,[array $condition])
+
+	  gives only specified columns as result, you can give condition if you want.
+	- findByCondition( array $condition ,[array $column])
+
+	  gives rows which satisfied conditions, you can specify columns in second optional argument
+	- query(string $queryString)
+
+	  you can directly fire your query using this function;
+	- save()
+
+	  insert the data with object of model,if data with same primary key is present then it will be updated
+	  for eg.
+	        $user=new UserModel();
+	        $user->id=1
+			$user->name='tom';
+			$user->save();
+
+    - Rules for condition array:
+
+	  any condition will be in form of operand,operator,operand,
+      so condition must be array of 3. if you want more than on condition you can replace  operand with array of condition like,
+      array( array('a','>','20'),'and',array('b','in',array(1,2,3,4))) will be equivalent to 'where a > 20 and b in (1,2,3,4)'
+      supported operators  are = >,>=,<,<=,and,or,in,not in,like,not like
 
 Session Handling
 ================
@@ -170,9 +257,11 @@ You can do session handling by following method
 
         Application::session()->start();
         Application::session()->destroy();
-        Application::session()->add(variable_name,value);
+        Application::session()->write(variable_name,value);
         Application::session()->delete(variable_name);
-        Application::session()->update(variable_name,value);
+        Application::session()->modify(variable_name,value);
+        Application::session()->read(variable_name);
+        Application::session()->readAll();
 
     - The variable_name should not be empty.
 

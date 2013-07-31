@@ -85,7 +85,7 @@ class LibSession{
         }
     }
 
-    public function add($variable_name,$value){
+    public function write($variable_name,$value){
         try{
             if($this->is_enable){
                 if($variable_name!==''){
@@ -134,7 +134,7 @@ class LibSession{
         }
     }
 
-    public function update($variable_name,$value){
+    public function modify($variable_name,$value){
         try{
             if($this->is_enable){
                 if($variable_name!==''){
@@ -161,7 +161,7 @@ class LibSession{
         }
     }
 
-    public function get($variable_name){
+    public function read($variable_name){
         try{
             if($this->is_enable){
                 if($variable_name!==''){
@@ -188,7 +188,7 @@ class LibSession{
         }
     }
 
-    public function getAll(){
+    public function readAll(){
         try{
             if($this->is_enable){
                 return $_SESSION;
