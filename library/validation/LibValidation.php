@@ -231,7 +231,7 @@ class LibValidation{
         return true;
     }
     private function validateSpecial($value,$param){
-        $spl_Char=array('!','@','#','$','%','^','&','*');
+        $spl_Char=array('!','@','#','$','%','^','&','*','_','-');
         $preg_char='[';
         if(is_array($param)){
             foreach($spl_Char as $char){
