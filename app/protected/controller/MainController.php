@@ -59,11 +59,11 @@ class MainController extends LibController{
         $model->deleteData($condition);
         */
 
+
+         //* -------------- query ----------------------
         /*
-         * -------------- query ----------------------
-        $arg='priyanka';
         $model=new UserModel();
-        $rows=$model->query("select * from user where id ='1'");
+        $rows=$model->query("select * from user where id < '6'");
         if(is_array($rows)){
             $this->render('new',array("rows"=>$rows));
         }
@@ -83,7 +83,7 @@ class MainController extends LibController{
         $user->save();                      // updates the record(id=10)
         $user->deleteData();                //deletes record(id=10)
         */
-        $this->render('new');
+
     }
 
     public function gotoOther(){

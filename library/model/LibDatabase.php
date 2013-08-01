@@ -77,7 +77,7 @@ private static $instance=null;
             return $return_value;
         }
     }
-    public function generateUpdate($table,$data,$conditions){
+    private function generateUpdate($table,$data,$conditions){
         $query='update '.$table.' set';
         $input=array();
         foreach($data as $key=>$value){
@@ -92,7 +92,7 @@ private static $instance=null;
         return $query;
     }
 
-    public function generateDelete($table,$data,$conditions){
+    private function generateDelete($table,$data,$conditions){
         if(!empty($conditions)){
             $where=$this->generateCondition($conditions);
             $query='delete from '.$table.' where '.$where;
@@ -100,7 +100,7 @@ private static $instance=null;
         }
     }
 
-    public function generateFind($table,$columns,$conditions){
+    private function generateFind($table,$columns,$conditions){
         $query='select ';
         if(!empty($columns)){
             foreach($columns as $col){
@@ -140,7 +140,7 @@ private static $instance=null;
 
     }
 
-    public function generateInsertOrUpdate($table,$data,$condition){
+    private function generateInsertOrUpdate($table,$data,$condition){
         $query=$this->generateInsert($table,$data,null);
         $query.=' on duplicate key update ';
         foreach($data as $key=>$value){

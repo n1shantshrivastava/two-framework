@@ -27,7 +27,7 @@ class LibView{
             throw new ApplicationException("View not found",__FILE__,__LINE__);
         }
     }
-   public function fetch($file){
+   public function useTemplate($file){
        $fileName=Application::conf()->APP_PATH.'protected/view/common/'.$file.'.php';
        if(file_exists($fileName)){
            require_once $fileName;

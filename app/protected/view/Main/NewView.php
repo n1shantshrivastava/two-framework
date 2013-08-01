@@ -1,12 +1,19 @@
-<?php $this->title='My view'?>
-<?php $this->fetch('header'); ?>
+<!doctype html>
+<html>
+<head>
+    <title>
+        New View
+    </title>
+
+</head>
+<body>
 <h3>
     new view
 </h3>
 <?php
     foreach($this->rows as $row){
-        echo 'Name='.$row['fname'];
+        echo '<br>Name='.$row['fname'];
     }
 ?>
-
-<?php $this->fetch('footer'); ?>
+</body>
+</html>

@@ -19,7 +19,7 @@ class LibModel {
      */
     private $primaryKey;
     public function __construct($table_name=null,$primary_key=null){
-        if(!empty($table_Name)){
+        if(!empty($table_name)){
             $this->tableName=$table_name;
         }
         else{
@@ -100,7 +100,7 @@ class LibModel {
             }
         }
         if(!empty($data)){
-            if(($db->generateQuery('insertOrUpdate',$this->tableName,$data,null))>0){
+            if(($db->generateQuery('InsertOrUpdate',$this->tableName,$data,null))>0){
                 $arr=$db->fireQuery("select LAST_INSERT_ID() as id");
                 $this->{$this->primaryKey}=$arr[0]['id'];
 
